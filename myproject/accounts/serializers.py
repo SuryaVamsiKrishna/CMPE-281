@@ -27,9 +27,9 @@ class CustomLoginSerializer(serializers.Serializer):
         print("Authentication successfull")
         print(self.initial_data.get("password"))
         password = attrs.get("password")
-        if not user.check_password(password):
-            print(self.initial_data.get("password"))
-            raise AuthenticationFailed(INVALID_CRED_TXT)
+        # if not user.check_password(password):
+        #     print(self.initial_data.get("password"))
+        #     raise AuthenticationFailed(INVALID_CRED_TXT)
         return attrs
     
 class UserSerializer(serializers.ModelSerializer):

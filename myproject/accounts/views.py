@@ -14,17 +14,6 @@ from rest_framework import parsers
 class UserRegistrationView(APIView):
     parser_classes = [parsers.FormParser, parsers.MultiPartParser, parsers.JSONParser]
 
-    # def get(self, request, *args, **kwargs):
-    #     # Decide which serializer to use
-    #     user_type = request.query_params.get('user_type')
-    #     if user_type == 'driver':
-    #         serializer = AVDriverSerializer()
-    #     else:
-    #         serializer = AVStaffSerializer()
-    #     # Display the HTML form for the serializer
-    #     serializer = UserSerializer
-    #     return Response({'serializerData': serializer.data})
-
     def post(self, request, *args, **kwargs):
         user_data = request.data.get('user')
         user_type = user_data.get('user_type')
@@ -42,35 +31,20 @@ class UserRegistrationView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# class CreateTokenView(ObtainAuthToken):
-#     """Create a new auth token for user"""
-#     serializer_class = AuthTokenSerializer
-#     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
-
 class CustomUserLoginAPI(APIView):
     SerializerClass = CustomLoginSerializer
 
     def post(self, request):
-        print(request.data)
         serializer = self.SerializerClass(data=request.data)
-        print(serializer)
         serializer.is_valid(raise_exception=True)
 
         response_data = {
             "success": True,
-            # "id": serializer.validated_data["user"].id,
-            # "token": CustomAPIAccessAuthentication.generate_jwt_token(serializer.validated_data["user"]),
             "email": serializer.validated_data["user"].email,
-            # "role": serializer.validated_data["user"].role,
             "username": serializer.validated_data["user"].username,
-            # "phoneNumber": str(serializer.validated_data["user"].phoneNumber),
-            # "is_admin": serializer.validated_data["user"].is_admin,
             **(CustomUserSerializer(instance=serializer.validated_data["user"]).data),
         }
-
         return Response(response_data, status=status.HTTP_200_OK)
-
-        return Response("HI", status=status.HTTP_200_OK)
 
 class ManageUserView(generics.RetrieveUpdateAPIView):
     """Manage the authenticated user"""
