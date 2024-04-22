@@ -4,13 +4,12 @@ from django.shortcuts import render
 from rest_framework import status, views
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import AVDriverSerializer, AVStaffSerializer, UserSerializer, AuthTokenSerializer 
+from .serializers import AVDriverSerializer, AVStaffSerializer, UserSerializer, CustomLoginSerializer, CustomUserSerializer
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework import generics, authentication, permissions, viewsets
 from rest_framework.settings import api_settings
 from rest_framework.authtoken.models import Token
 from rest_framework import parsers
-
 
 class UserRegistrationView(APIView):
     parser_classes = [parsers.FormParser, parsers.MultiPartParser, parsers.JSONParser]
@@ -27,11 +26,15 @@ class UserRegistrationView(APIView):
     #     return Response({'serializerData': serializer.data})
 
     def post(self, request, *args, **kwargs):
-        user_type = request.data.get('user_type')
+        user_data = request.data.get('user')
+        user_type = user_data.get('user_type')
         print("Inide this.... hello")
         if user_type == 'driver':
+            print("driver")
             serializer = AVDriverSerializer(data=request.data)
         else:
+            print(user_type)
+            print(user_type == 'driver')
             serializer = AVStaffSerializer(data=request.data)
         print("Inide this.... hello 12345")
         if serializer.is_valid():
@@ -39,10 +42,35 @@ class UserRegistrationView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class CreateTokenView(ObtainAuthToken):
-    """Create a new auth token for user"""
-    serializer_class = AuthTokenSerializer
-    renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
+# class CreateTokenView(ObtainAuthToken):
+#     """Create a new auth token for user"""
+#     serializer_class = AuthTokenSerializer
+#     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
+
+class CustomUserLoginAPI(APIView):
+    SerializerClass = CustomLoginSerializer
+
+    def post(self, request):
+        print(request.data)
+        serializer = self.SerializerClass(data=request.data)
+        print(serializer)
+        serializer.is_valid(raise_exception=True)
+
+        response_data = {
+            "success": True,
+            # "id": serializer.validated_data["user"].id,
+            # "token": CustomAPIAccessAuthentication.generate_jwt_token(serializer.validated_data["user"]),
+            "email": serializer.validated_data["user"].email,
+            # "role": serializer.validated_data["user"].role,
+            "username": serializer.validated_data["user"].username,
+            # "phoneNumber": str(serializer.validated_data["user"].phoneNumber),
+            # "is_admin": serializer.validated_data["user"].is_admin,
+            **(CustomUserSerializer(instance=serializer.validated_data["user"]).data),
+        }
+
+        return Response(response_data, status=status.HTTP_200_OK)
+
+        return Response("HI", status=status.HTTP_200_OK)
 
 class ManageUserView(generics.RetrieveUpdateAPIView):
     """Manage the authenticated user"""
