@@ -33,42 +33,43 @@ class UserRegistrationView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# class CustomUserLoginAPI(APIView):
-#     SerializerClass = CustomLoginSerializer
-
-#     def post(self, request):
-#         serializer = self.SerializerClass(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-
-#         response_data = {
-#             "success": True,
-#             "email": serializer.validated_data["user"].email,
-#             "username": serializer.validated_data["user"].username,
-#             **(CustomUserSerializer(instance=serializer.validated_data["user"]).data),
-#         }
-#         return Response(response_data, status=status.HTTP_200_OK)
-
 class CustomUserLoginAPI(APIView):
-    def get(self, request):
-        form = LoginForm()
-        return render(request, 'login.html', {'form': form})
+    SerializerClass = CustomLoginSerializer
 
     def post(self, request):
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            serializer = CustomLoginSerializer(data=form.cleaned_data)
-            if serializer.is_valid():
-                user = serializer.validated_data['user']
-                response_data = {
-                    "success": True,
-                    "email": user.email,
-                    "username": user.username,
-                    **(CustomUserSerializer(instance=user).data),
-                }
-                return Response(response_data, status=status.HTTP_200_OK)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return render(request, 'login.html', {'form': form})
+        serializer = self.SerializerClass(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        response_data = {
+            "success": True,
+            "email": serializer.validated_data["user"].email,
+            "username": serializer.validated_data["user"].username,
+            **(CustomUserSerializer(instance=serializer.validated_data["user"]).data),
+        }
+        return Response(response_data, status=status.HTTP_200_OK)
+
+# class CustomUserLoginAPI(APIView):
+#     def get(self, request):
+#         form = LoginForm()
+#         return render(request, 'login.html', {'form': form})
+
+#     def post(self, request):
+#         print("Call from front-end")
+#         form = LoginForm(request.POST)
+#         if form.is_valid():
+#             serializer = CustomLoginSerializer(data=form.cleaned_data)
+#             if serializer.is_valid():
+#                 user = serializer.validated_data['user']
+#                 response_data = {
+#                     "success": True,
+#                     "email": user.email,
+#                     "username": user.username,
+#                     **(CustomUserSerializer(instance=user).data),
+#                 }
+#                 return Response(response_data, status=status.HTTP_200_OK)
+#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#         else:
+#             return render(request, 'login.html', {'form': form})
 
 
 # class UserRegistrationView(APIView):

@@ -11,6 +11,8 @@ import AppFooter from "./components/Footer/Footer";
 import AppHeader from "./components/Header/Header";
 import HomePage from "./pages/HomePage/HomePage";
 import Login from "./components/Login/Login";
+import Signup from "./components/Signup/Signup";
+import Dashboard from "./components/Dashboard/Dashboard";
 
 const App = () => {
  
@@ -24,6 +26,8 @@ const App = () => {
               {/* <Route path="/join" element={<RoomJoinPage />} />
               <Route path="/create" element={<CreateRoomPage />} /> */}
               <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/dashboard" element={<Dashboard />} />
             </Routes>
           </Router>
         </div>
