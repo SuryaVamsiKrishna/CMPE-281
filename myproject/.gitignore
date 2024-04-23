@@ -1,3 +1,4 @@
 # Ignore Django migration files
 **/migrations/*.py
 **/migrations/*.pyc
+node_modules/
