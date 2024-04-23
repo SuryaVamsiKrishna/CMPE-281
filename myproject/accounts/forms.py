@@ -1,22 +1,35 @@
 from django import forms
-from django.contrib.auth import authenticate
-from django.core.exceptions import ValidationError
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import get_user_model
+from .models import AVDriver, AVStaff
 
-class CustomLoginForm(forms.Form):
-    username = forms.CharField(required=True)
-    password = forms.CharField(widget=forms.PasswordInput, required=True)
+class LoginForm(forms.Form):
+    username = forms.CharField(label='Username', max_length=100, required=True)
+    password = forms.CharField(label='Password', widget=forms.PasswordInput, required=True)
 
-    def clean(self):
-        cleaned_data = super().clean()
-        username = cleaned_data.get('username')
-        password = cleaned_data.get('password')
+User = get_user_model()
 
-        if username and password:
-            user = authenticate(username=username, password=password)
-            if user is None:
-                raise forms.ValidationError("Invalid username or password")
-            self.user_cache = user
-        return self.cleaned_data
+class UserForm(UserCreationForm):
+    user_type = forms.ChoiceField(choices=User.USER_TYPE_CHOICES, required=True)
 
-    def get_user(self):
-        return getattr(self, 'user_cache', None)
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'user_type', 'password1', 'password2']
+
+class AVDriverForm(forms.ModelForm):
+    class Meta:
+        model = AVDriver
+        fields = ['license_number', 'vehicle_color', 'model_number', 'sensor_info']
+
+    def __init__(self, *args, **kwargs):
+        super(AVDriverForm, self).__init__(*args, **kwargs)
+        self.fields['user'] = UserForm()
+
+class AVStaffForm(forms.ModelForm):
+    class Meta:
+        model = AVStaff
+        fields = []
+
+    def __init__(self, *args, **kwargs):
+        super(AVStaffForm, self).__init__(*args, **kwargs)
+        self.fields['user'] = UserForm()

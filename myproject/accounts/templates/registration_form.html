@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Registration</title>
+</head>
+<body>
+    <h1>Registration Form</h1>
+    <form method="post">
+        {% csrf_token %}
+        <fieldset>
+            <legend>User Information:</legend>
+            {{ user_form.as_p }}
+        </fieldset>
+
+        <div id="driver_details" style="display:none;">
+            <fieldset>
+                <legend>Driver Details:</legend>
+                {{ driver_form.as_p }}
+            </fieldset>
+        </div>
+
+        <div id="staff_details" style="display:none;">
+            <fieldset>
+                <legend>Staff Details:</legend>
+                {{ staff_form.as_p }}
+            </fieldset>
+        </div>
+
+        <button type="submit">Register</button>
+    </form>
+
+    <script>
+        document.getElementById('id_user_type').addEventListener('change', function() {
+            var userType = this.value;
+            if (userType === 'driver') {
+                document.getElementById('driver_details').style.display = 'block';
+                document.getElementById('staff_details').style.display = 'none';
+            } else if (userType === 'staff') {
+                document.getElementById('driver_details').style.display = 'none';
+                document.getElementById('staff_details').style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
