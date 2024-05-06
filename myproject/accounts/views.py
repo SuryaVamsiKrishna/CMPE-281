@@ -120,3 +120,33 @@ class ManageUserView(generics.RetrieveUpdateAPIView):
         """Retrieve and return authentication user"""
         return self.request.user
 
+
+from rest_framework import status, views
+from rest_framework.response import Response
+from .models import User, AVDriver, AVStaff
+
+class GetUserDetailsByUsername(views.APIView):
+    def get(self, request, username):
+        try:
+            user = User.objects.get(username=username)
+            user_data = {
+                "user": {
+                    "username": user.username,
+                    "email": user.email,
+                    "user_type": user.user_type,
+                    "password": user.password,
+                }
+            }
+
+            if user.user_type == User.AV_DRIVER:
+                driver = AVDriver.objects.get(user=user)
+                user_data['license_number'] = driver.license_number
+                user_data['vehicle_color'] = driver.vehicle_color
+                user_data['model_number'] = driver.model_number
+                user_data['sensor_info'] = driver.sensor_info
+                # user_data.update(driver_data)
+
+            return Response(user_data, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+

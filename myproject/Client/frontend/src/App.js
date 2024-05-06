@@ -13,6 +13,7 @@ import HomePage from "./pages/HomePage/HomePage";
 import Login from "./components/Login/Login";
 import Signup from "./components/Signup/Signup";
 import Dashboard from "./components/Dashboard/Dashboard";
+import ViewProfile from "./components/ViewProfile/ViewProfile"
 
 const App = () => {
  
@@ -28,6 +29,7 @@ const App = () => {
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/view-profile" element={<ViewProfile location={location} />} />
             </Routes>
           </Router>
         </div>
