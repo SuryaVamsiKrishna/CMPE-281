@@ -48,67 +48,6 @@ class CustomUserLoginAPI(APIView):
         }
         return Response(response_data, status=status.HTTP_200_OK)
 
-# class CustomUserLoginAPI(APIView):
-#     def get(self, request):
-#         form = LoginForm()
-#         return render(request, 'login.html', {'form': form})
-
-#     def post(self, request):
-#         print("Call from front-end")
-#         form = LoginForm(request.POST)
-#         if form.is_valid():
-#             serializer = CustomLoginSerializer(data=form.cleaned_data)
-#             if serializer.is_valid():
-#                 user = serializer.validated_data['user']
-#                 response_data = {
-#                     "success": True,
-#                     "email": user.email,
-#                     "username": user.username,
-#                     **(CustomUserSerializer(instance=user).data),
-#                 }
-#                 return Response(response_data, status=status.HTTP_200_OK)
-#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#         else:
-#             return render(request, 'login.html', {'form': form})
-
-
-# class UserRegistrationView(APIView):
-#     def get(self, request):
-#         user_form = UserForm()
-#         driver_form = AVDriverForm(prefix='driver')
-#         staff_form = AVStaffForm(prefix='staff')
-#         return render(request, 'registration_form.html', {
-#             'user_form': user_form,
-#             'driver_form': driver_form,
-#             'staff_form': staff_form
-#         })
-
-#     def post(self, request):
-#         user_form = UserForm(request.POST, prefix='user')
-#         if user_form.is_valid():
-#             user = user_form.save()
-#             if user.user_type == 'driver':
-#                 driver_form = AVDriverForm(request.POST, prefix='driver')
-#                 if driver_form.is_valid():
-#                     driver = driver_form.save(commit=False)
-#                     driver.user = user
-#                     driver.save()
-#                     return redirect('success_url')
-#             elif user.user_type == 'staff':
-#                 staff_form = AVStaffForm(request.POST, prefix='staff')
-#                 if staff_form.is_valid():
-#                     staff = staff_form.save(commit=False)
-#                     staff.user = user
-#                     staff.save()
-#                     return redirect('success_url')
-
-#         return render(request, 'registration_form.html', {
-#             'user_form': user_form,
-#             'driver_form': AVDriverForm(prefix='driver'),
-#             'staff_form': AVStaffForm(prefix='staff')
-#         })
-
-
         
 class ManageUserView(generics.RetrieveUpdateAPIView):
     """Manage the authenticated user"""
@@ -149,4 +88,49 @@ class GetUserDetailsByUsername(views.APIView):
             return Response(user_data, status=status.HTTP_200_OK)
         except User.DoesNotExist:
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+from rest_framework import status, views
+from rest_framework.response import Response
+from .models import User, AVDriver, AVStaff
+
+class EditProfile(views.APIView):
+    def put(self, request):
+        user_data = request.data.get("user", {})
+        username = user_data.get("username", "")
+
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Update user information
+        user.email = user_data.get("email", user.email)
+        user.password = user_data.get("password", user.password)
+        user.save()
+
+        user_type = user_data.get("user_type", "")
+        if user_type == User.AV_DRIVER:
+            # Update AVDriver information
+            driver_data = request.data
+            try:
+                driver = AVDriver.objects.get(user=user)
+            except AVDriver.DoesNotExist:
+                return Response({"error": "AVDriver not found"}, status=status.HTTP_404_NOT_FOUND)
+            
+            driver.license_number = driver_data.get("license_number", driver.license_number)
+            driver.vehicle_color = driver_data.get("vehicle_color", driver.vehicle_color)
+            driver.model_number = driver_data.get("model_number", driver.model_number)
+            driver.sensor_info = driver_data.get("sensor_info", driver.sensor_info)
+            driver.save()
+        elif user_type == User.AV_STAFF:
+            # Update AVStaff information
+            staff_data = request.data
+            try:
+                staff = AVStaff.objects.get(user=user)
+            except AVStaff.DoesNotExist:
+                return Response({"error": "AVStaff not found"}, status=status.HTTP_404_NOT_FOUND)
+            # Update AVStaff information here similarly to AVDriver
+
+        return Response({"message": "User profile updated successfully"}, status=status.HTTP_200_OK)
+
 

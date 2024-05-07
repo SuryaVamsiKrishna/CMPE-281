@@ -13,7 +13,8 @@ import HomePage from "./pages/HomePage/HomePage";
 import Login from "./components/Login/Login";
 import Signup from "./components/Signup/Signup";
 import Dashboard from "./components/Dashboard/Dashboard";
-import ViewProfile from "./components/ViewProfile/ViewProfile"
+import ViewProfile from "./components/ViewProfile/ViewProfile";
+import EditProfile from "./components/EditProfile/EditProfile";
 
 const App = () => {
  
@@ -29,7 +30,8 @@ const App = () => {
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/view-profile" element={<ViewProfile location={location} />} />
+              <Route path="/view-profile" element={<ViewProfile />} />
+              <Route path="/edit-profile" element={<EditProfile />} />
             </Routes>
           </Router>
         </div>
